@@ -1,0 +1,93 @@
+{
+  "created_at": 1741688672,
+  "type": "cast.created",
+  "data": {
+    "object": "cast",
+    "hash": "0x3a1ead7d9defaddebbe044c672dd462ec3951d5c",
+    "author": {
+      "object": "user",
+      "fid": 544224,
+      "username": "rosarioborgesi",
+      "display_name": "Rosario Borgesi",
+      "pfp_url": "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/5c6fe08e-b925-4028-128c-7c5ed032fb00/rectcrop3",
+      "custody_address": "0x6d690c9c995ec4836d4e28b40c8afee78fe8b595",
+      "profile": {
+        "bio": { "text": "Web3 Dev\n\nhttps://www.youtube.com/@rosariosway" },
+        "location": {
+          "latitude": 37.51,
+          "longitude": 15.08,
+          "address": {
+            "city": "Catania",
+            "state": "Sicily",
+            "country": "Italy",
+            "country_code": "it"
+          }
+        }
+      },
+      "follower_count": 14,
+      "following_count": 95,
+      "verifications": [
+        "0x1f0c72e13718d9136ffe51b89289b239a1bcfe28",
+        "0x2221b0b0bcf6146646016a323e60997a11c709a3"
+      ],
+      "verified_addresses": {
+        "eth_addresses": [
+          "0x1f0c72e13718d9136ffe51b89289b239a1bcfe28",
+          "0x2221b0b0bcf6146646016a323e60997a11c709a3"
+        ],
+        "sol_addresses": []
+      },
+      "verified_accounts": [{ "platform": "x", "username": "rosarioborgesi" }],
+      "power_badge": false,
+      "experimental": { "neynar_user_score": 0.6 }
+    },
+    "app": {
+      "object": "user_dehydrated",
+      "fid": 9152,
+      "username": "warpcast",
+      "display_name": "Warpcast",
+      "pfp_url": "https://i.imgur.com/3d6fFAI.png"
+    },
+    "thread_hash": "0x3a1ead7d9defaddebbe044c672dd462ec3951d5c",
+    "parent_hash": null,
+    "parent_url": null,
+    "root_parent_url": null,
+    "parent_author": { "fid": null },
+    "text": "@aethermint hey man what's up?",
+    "timestamp": "2025-03-11T10:24:30.000Z",
+    "embeds": [
+      {
+        "url": "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/cb3dc5bb-cfaf-4f34-b072-ab755f839f00/original",
+        "metadata": {
+          "content_type": "image/jpeg",
+          "content_length": 538389,
+          "_status": "RESOLVED",
+          "image": { "width_px": 2000, "height_px": 1124 }
+        }
+      }
+    ],
+    "channel": null,
+    "reactions": { "likes_count": 0, "recasts_count": 0, "likes": [], "recasts": [] },
+    "replies": { "count": 0 },
+    "mentioned_profiles": [
+      {
+        "object": "user",
+        "fid": 1018291,
+        "custody_address": "0x60425b5b430e461c3ed1626ea9b2ed6c6d8f23ca",
+        "username": "aethermint",
+        "display_name": "AetherMint",
+        "pfp_url": "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/99f2ca72-4c56-46fe-3229-dde1c32d0e00/original",
+        "profile": { "bio": { "text": null, "mentioned_profiles": [] } },
+        "follower_count": 1,
+        "following_count": 0,
+        "verifications": [],
+        "verified_addresses": { "eth_addresses": [], "sol_addresses": [] },
+        "power_badge": false
+      }
+    ],
+    "mentioned_profiles_ranges": [{ "start": 0, "end": 11 }],
+    "mentioned_channels": [],
+    "mentioned_channels_ranges": [],
+    "event_timestamp": "2025-03-11T10:24:31.213Z"
+  }
+}

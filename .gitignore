@@ -1,0 +1,9 @@
+/backend/node_modules/
+
+/eliza/node_modules/
+/eliza/dist/
+/eliza/db.sqlite
+/eliza/.idea
+/eliza/.tee-cloud
+
+*.env
