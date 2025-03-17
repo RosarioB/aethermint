@@ -1,12 +1,13 @@
 import type { Plugin } from "@elizaos/core";
+import { nftMintingAction } from "./actions/nftMinting";
 
-export const evmPlugin: Plugin = {
-    name: "evm",
-    description: "EVM blockchain integration plugin",
+export const mintNftPlugin: Plugin = {
+    name: "mintNft",
+    description: "NFT minting plugin",
     providers: [],
     evaluators: [],
     services: [],
-    /* actions: [mintNftAction], */
+    actions: [nftMintingAction],
 };
 
-export default evmPlugin;
+export default mintNftPlugin;

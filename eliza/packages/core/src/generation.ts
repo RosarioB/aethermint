@@ -386,6 +386,9 @@ export async function generateText({
         return "";
     }
 
+    // TEST
+    console.log("The context is: ", context);
+
     elizaLogger.log("Generating text...");
 
     elizaLogger.info("Generating text with options:", {
@@ -1630,6 +1633,8 @@ export async function generateObjectDeprecated({
                 context,
                 modelClass,
             });
+            // ELIMINA
+            //console.log("The RESPONSE is:", response );
             const parsedResponse = parseJSONObjectFromText(response);
             if (parsedResponse) {
                 return parsedResponse;
