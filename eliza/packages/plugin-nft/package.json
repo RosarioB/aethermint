@@ -22,7 +22,8 @@
         "@elizaos/core": "workspace:^",
         "@elizaos-plugins/plugin-evm": "workspace:*",
         "@elizaos-plugins/plugin-image-generation": "workspace:*",
-        "pinata-web3": "^0.5.4"
+        "pinata-web3": "^0.5.4",
+        "zod": "3.24.1"
     },
     "devDependencies": {
         "@types/node": "^22.10.5",

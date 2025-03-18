@@ -1,3 +1,4 @@
+import { elizaLogger } from "@elizaos/core";
 import { PinataSDK } from "pinata-web3";
 
 export const pinata = new PinataSDK({
@@ -30,6 +31,10 @@ export const uploadJsonToPinata = async (
                 name: jsonName,
             },
         }
+    );
+
+    elizaLogger.info(
+        `Successfully uploaded JSON ${jsonName} to Pinata with hash: ${jsonHash}`
     );
     return jsonHash;
 };

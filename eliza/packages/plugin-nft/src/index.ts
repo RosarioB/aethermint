@@ -6,7 +6,7 @@ export * from "./types";
 
 export const nftPlugin: Plugin = {
     name: "nft",
-    description: "Mints NFT with AI generated images",
+    description: "Mints NFTs with AI generated images",
     actions: [nftMintingAction],
     evaluators: [],
     providers: [],

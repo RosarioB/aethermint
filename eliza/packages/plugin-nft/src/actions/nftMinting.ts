@@ -17,8 +17,8 @@ import {
 import type {
     NftMintingParams,
     NftMintingTransaction,
-    PromptData,
 } from "../types/index.js";
+import { isNftMintingContent, NftMintingContent } from "../types/index.js";
 import { NFT_MINTING_TEMPLATE } from "../templates/nftMintingTemplate.js";
 import { generateAiImage } from "../lib/imageGeneration.js";
 import { validateImageGenConfig } from "@elizaos-plugins/plugin-image-generation";
@@ -29,19 +29,20 @@ import { privateKeyToAccount } from "viem/accounts";
 
 const ERC721_ADDRESS = process.env.ERC721_ADDRESS as `0x${string}`;
 const OWNER_ERC721 = process.env.OWNER_ERC721 as `0x${string}`;
-const account = privateKeyToAccount(process.env.EVM_PRIVATE_KEY as `0x${string}`);
+const account = privateKeyToAccount(
+    process.env.EVM_PRIVATE_KEY as `0x${string}`
+);
 
 const erc721Abi = parseAbi([
     "function safeMint(address to, string memory uri) public returns (uint256)",
 ]);
 
-// Exported for tests
 export class NftMintingAction {
     constructor(private walletProvider: WalletProvider) {}
 
     async mint(params: NftMintingParams): Promise<NftMintingTransaction> {
-        console.log(
-            `Minting NFT with TokenURI ${params.tokenUri} to ${params.toAddress}`
+        elizaLogger.info(
+            `Minting NFT with TokenURI ${params.tokenUri} to ${params.recipient}`
         );
 
         const walletClient = this.walletProvider.getWalletClient("baseSepolia");
@@ -59,11 +60,13 @@ export class NftMintingAction {
             return {
                 hash: txHash,
                 from: walletClient.account.address,
-                to: params.toAddress,
+                to: params.recipient,
                 tokenUri: params.tokenUri,
             };
         } catch (error) {
-            throw new Error(`Transfer failed: ${error.message}`);
+            throw new Error(
+                `Calling the mint function on the smart contract failed: ${error.message}`
+            );
         }
     }
 }
@@ -72,7 +75,7 @@ const buildNftMintingDetails = async (
     state: State,
     runtime: IAgentRuntime,
     wp: WalletProvider
-): Promise<PromptData> => {
+): Promise<NftMintingContent> => {
     const chains = Object.keys(wp.chains);
     state.supportedChains = chains.map((item) => `"${item}"`).join("|");
 
@@ -85,7 +88,7 @@ const buildNftMintingDetails = async (
         runtime,
         context,
         modelClass: ModelClass.SMALL,
-    })) as PromptData;
+    })) as NftMintingContent;
 
     return promptNftDetails;
 };
@@ -131,21 +134,35 @@ export const nftMintingAction: Action = {
         _options: any,
         callback?: HandlerCallback
     ) => {
-        if (!state) {
-            state = (await runtime.composeState(message)) as State;
+        let currentState = state;
+        if (!currentState) {
+            currentState = (await runtime.composeState(message)) as State;
         } else {
-            state = await runtime.updateRecentMessageState(state);
+            currentState = await runtime.updateRecentMessageState(currentState);
         }
 
-        console.log("NftMinting action handler called");
+        currentState.currentMessage = `${currentState.recentMessagesData[1].content.text}`;
+
+        elizaLogger.info("NftMinting action handler called");
         const walletProvider = await initWalletProvider(runtime);
         const action = new NftMintingAction(walletProvider);
 
         const promptData = await buildNftMintingDetails(
-            state,
+            currentState,
             runtime,
             walletProvider
         );
+
+        if (!isNftMintingContent(promptData)) {
+            elizaLogger.error("Invalid content for MINT_NFT action.");
+            callback({
+                text: "Invalid NftMinting details. Ensure name, description, and recipient are correctly specified.",
+                content: { error: "Invalid mint NFT content" },
+            });
+            return false;
+        }
+
+        elizaLogger.info(`Validated JSON: ${JSON.stringify(promptData)}`);
 
         const imageHash = await generateAiImage(
             runtime,
@@ -159,25 +176,17 @@ export const nftMintingAction: Action = {
 
         const nftMintingParams = {
             tokenUri: jsonHash,
-            toAddress: promptData.toAddress,
+            recipient: promptData.recipient,
         };
-
-        // TEST
-        /* const jsonHash = await uploadJsonToPinata(
-            promptData.name || "",
-            promptData.description,
-            "somehash"
-        );
-        const nftMintingParams = {
-            tokenUri: "Some URI",
-            toAddress: "0x20c6F9006d563240031A1388f4f25726029a6368"
-        } */
 
         try {
             const transferResp = await action.mint(nftMintingParams);
             if (callback) {
+                elizaLogger.info(
+                    `Successfully minted NFT to ${promptData.recipient} with transaction Hash: ${transferResp.hash}`
+                );
                 callback({
-                    text: `Successfully minted NFT to ${promptData.toAddress}\nTransaction Hash: ${transferResp.hash}`,
+                    text: `Successfully minted NFT to ${promptData.recipient} with transaction Hash: ${transferResp.hash}`,
                     content: {
                         success: true,
                         hash: transferResp.hash,
@@ -188,10 +197,10 @@ export const nftMintingAction: Action = {
             }
             return true;
         } catch (error) {
-            console.error("Error during token transfer:", error);
+            elizaLogger.error("Error during minting the NFT:", error);
             if (callback) {
                 callback({
-                    text: `Error transferring tokens: ${error.message}`,
+                    text: `Error minting the NFT: ${error.message}`,
                     content: { error: error.message },
                 });
             }
@@ -201,42 +210,42 @@ export const nftMintingAction: Action = {
     examples: [
         [
             {
-                user: "user",
+                user: "{{user1}}",
                 content: {
                     text: "Send a golden cat to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
                     action: "MINT_NFT",
                 },
             },
             {
-                user: "assistant",
+                user: "{{agentName}}",
                 content: {
                     text: "NFT successfully minted to 0x742d35Cc6634C0532925a3b844Bc454e4438f44 \nTransaction Hash: 0x1234567890",
                     action: "MINT_NFT",
                 },
             },
             {
-                user: "user",
+                user: "{{user1}}",
                 content: {
                     text: "Send a cake to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
                     action: "MINT_NFT",
                 },
             },
             {
-                user: "assistant",
+                user: "{{agentName}}",
                 content: {
                     text: "NFT successfully minted to 0x742d35Cc6634C0532925a3b844Bc454e4438f44 \nTransaction Hash: 0x1234567890",
                     action: "MINT_NFT",
                 },
             },
             {
-                user: "user",
+                user: "{{user1}}",
                 content: {
                     text: "Send a fabolus car to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
                     action: "MINT_NFT",
                 },
             },
             {
-                user: "assistant",
+                user: "{{agentName}}",
                 content: {
                     text: "NFT successfully minted to 0x742d35Cc6634C0532925a3b844Bc454e4438f44 \nTransaction Hash: 0x1234567890",
                     action: "MINT_NFT",

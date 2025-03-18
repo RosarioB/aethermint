@@ -24,7 +24,7 @@ export const generateAiImage = async (
         customSystemPrompt: IMAGE_SYSTEM_PROMPT,
     });
 
-    elizaLogger.log("Image prompt received:", imagePrompt);
+    elizaLogger.info("Image prompt received:", imagePrompt);
 
     const image = await generateImage(
         {
@@ -37,7 +37,7 @@ export const generateAiImage = async (
     );
 
     if (image.success && image.data && image.data.length > 0) {
-        elizaLogger.log("Image generated successfully");
+        elizaLogger.info("Image generated successfully");
         const base64Image = image.data[0];
         const filename = `generated_${Date.now()}`;
         return await saveImageOnIpfs(base64Image, filename);
@@ -49,7 +49,7 @@ export const generateAiImage = async (
 const saveImageOnIpfs = async (base64Image: string, filename: string) => {
     const file = base64ToFile(base64Image, filename);
     const imageHash = await uploadImageOnPinata(file);
-    elizaLogger.log(
+    elizaLogger.info(
         "Image:",
         filename,
         "uploaded to IPFS with hash:",

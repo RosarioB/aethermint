@@ -386,8 +386,8 @@ export async function generateText({
         return "";
     }
 
-    // TEST
-    console.log("The context is: ", context);
+    // RIMUOVI
+    //console.log("The context is: ", context);
 
     elizaLogger.log("Generating text...");
 
