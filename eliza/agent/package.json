@@ -24,9 +24,9 @@
         "@elizaos/client-direct": "workspace:*",
         "@elizaos/core": "workspace:*",
         "@elizaos/plugin-bootstrap": "workspace:*",
+        "@elizaos/plugin-nft": "workspace:*",
         "@types/node": "^22.13.5",
         "json5": "2.2.3",
-        "pinata-web3": "^0.5.4",
         "ts-node": "^10.9.2",
         "yargs": "17.7.2"
     },

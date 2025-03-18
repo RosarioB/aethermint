@@ -13,7 +13,7 @@ import {
 import {
     initWalletProvider,
     type WalletProvider,
-} from "../../../../packages/plugin-evm/src/providers/wallet.js";
+} from "@elizaos-plugins/plugin-evm";
 import type {
     NftMintingParams,
     NftMintingTransaction,
@@ -21,7 +21,7 @@ import type {
 } from "../types/index.js";
 import { NFT_MINTING_TEMPLATE } from "../templates/nftMintingTemplate.js";
 import { generateAiImage } from "../lib/imageGeneration.js";
-import { validateImageGenConfig } from "../../../../packages/plugin-image-generation/src/environment.js";
+import { validateImageGenConfig } from "@elizaos-plugins/plugin-image-generation";
 import { uploadJsonToPinata } from "../lib/pinata.js";
 import { parseAbi } from "viem";
 import { baseSepolia } from "viem/chains";
@@ -147,7 +147,7 @@ export const nftMintingAction: Action = {
             walletProvider
         );
 
-        /* const imageHash = await generateAiImage(
+        const imageHash = await generateAiImage(
             runtime,
             promptData.description
         );
@@ -160,10 +160,10 @@ export const nftMintingAction: Action = {
         const nftMintingParams = {
             tokenUri: jsonHash,
             toAddress: promptData.toAddress,
-        }; */
+        };
 
         // TEST
-        const jsonHash = await uploadJsonToPinata(
+        /* const jsonHash = await uploadJsonToPinata(
             promptData.name || "",
             promptData.description,
             "somehash"
@@ -171,7 +171,7 @@ export const nftMintingAction: Action = {
         const nftMintingParams = {
             tokenUri: "Some URI",
             toAddress: "0x20c6F9006d563240031A1388f4f25726029a6368"
-        }
+        } */
 
         try {
             const transferResp = await action.mint(nftMintingParams);

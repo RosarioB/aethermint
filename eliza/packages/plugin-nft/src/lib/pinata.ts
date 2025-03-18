@@ -15,7 +15,9 @@ export const uploadJsonToPinata = async (
     description: string,
     imageHash: string
 ) => {
-    const jsonName = `${name.slice(0, 20).replace(/\s/g, "_")}_${Date.now()}.json`;
+    const jsonName = `${name
+        .slice(0, 20)
+        .replace(/\s/g, "_")}_${Date.now()}.json`;
     const { IpfsHash: jsonHash } = await pinata.upload.json(
         {
             name: name,
