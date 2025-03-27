@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { mentionWebhook } from "../controllers/webhook.controller.js";
+import { handleMention } from "../controllers/webhook.controller.js";
 
-const webhookRoute = Router();
+const router = Router();
+router.post("/mention/aethermint", handleMention);
 
-webhookRoute.post("/mention/aethermint", mentionWebhook);
-
-export default webhookRoute;
+export default router;

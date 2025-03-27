@@ -4,7 +4,7 @@ import {
   deleteNft,
   getNftById,
   getNfts,
-  updateNft
+  updateNft,
 } from "../controllers/nft.controller.js";
 
 const nftRoute = Router();
@@ -14,6 +14,5 @@ nftRoute.get("", getNfts);
 nftRoute.get("/:nftId", getNftById);
 nftRoute.delete("/:nftId", deleteNft);
 nftRoute.put("/:nftId", updateNft);
-
 
 export default nftRoute;

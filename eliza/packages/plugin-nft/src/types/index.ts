@@ -29,13 +29,18 @@ export const isNftMintingContent = (object: any): object is NftMintingContent =>
 };
 
 export interface NftMintingParams {
-    tokenUri: string;
+    jsonHash: string;
     recipient: string;
+    name: string;
+    description: string;
+    imageHash: string;
 }
 
 export interface NftMintingTransaction {
+    id: string;
     hash: string;
     from: string;
     to: string;
     tokenUri: string;
+    imageUrl: string;
 }

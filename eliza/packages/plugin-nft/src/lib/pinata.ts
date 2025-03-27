@@ -1,9 +1,10 @@
 import { elizaLogger } from "@elizaos/core";
 import { PinataSDK } from "pinata-web3";
+import { config } from "./config";
 
 export const pinata = new PinataSDK({
-    pinataJwt: process.env.PINATA_JWT,
-    pinataGateway: process.env.PINATA_GATEWAY_URL,
+    pinataJwt: config.pinata_jwt,
+    pinataGateway: config.pinata_gateway_url,
 });
 
 export const uploadImageToPinata = async (file: File) => {

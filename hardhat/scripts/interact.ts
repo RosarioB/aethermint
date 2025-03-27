@@ -20,8 +20,9 @@ async function main() {
   const balance = await aethermintContract.balanceOf(OWNER_ACCOUNT);
   console.log(`The token balance of the account ${OWNER_ACCOUNT} is: ${balance}`);
 
-  const tokenURI = await aethermintContract.tokenURI(1);
-  console.log(`The token URI of the token 0 is: ${tokenURI}`);
+  const tokenId = 6;
+  const tokenURI = await aethermintContract.tokenURI(tokenId);
+  console.log(`The token URI of the tokenId ${tokenId} is: ${tokenURI}`);
 
   /* // Run contract write function
   const transaction = await aethermintContract.setGreeting('Hello people!');

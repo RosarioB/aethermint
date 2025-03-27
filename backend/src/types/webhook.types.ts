@@ -1,11 +1,10 @@
-export type FarcasterEvent = {
-  id: number;
+export type WebhookEvent = {
   created_at: number;
   type: string;
-  data: Data;
+  data: WebhookData;
 };
 
-export type Data = {
+export type WebhookData = {
   object: string;
   hash: string;
   author: {
@@ -88,10 +87,4 @@ export type Data = {
   mentioned_channels: any[];
   mentioned_channels_ranges: any[];
   event_timestamp: string;
-};
-
-export type Mention = {
-  status: string;
-  created: Date;
-  cast: Data;
 };

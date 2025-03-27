@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { config } from "./config/config.js";
 import indexRoute from "./routes/index.js";
+import { logWithTimestamp } from "./utils/logging.js";
 
 const app = express();
 
@@ -11,7 +12,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 /* app.use((req: Request, res: Response, next) => {
-  console.log(
+  logWithTimestamp(
     `${req.method} ${req.path} - ${new Date().toISOString()} - IP: ${req.ip}`
   );
   next();
@@ -24,15 +25,6 @@ app.use(cors());
 app.use(express.json());
 app.use("/", indexRoute);
 
-/* app.post("/", async (req: Request, res: Response) => {
-  try {
-    console.log(req.body);
-    res.send("gm!");
-  } catch (e: any) {
-    res.status(500).send(e.message);
-  }
-}); */
-
 app.listen(config.port, () => {
-  console.log(`Server is running on port ${config.port}`);
+  logWithTimestamp(`Server is running on port ${config.port}`);
 });

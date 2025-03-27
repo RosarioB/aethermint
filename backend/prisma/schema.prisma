@@ -16,16 +16,9 @@ datasource db {
 model Nft {
   id           String    @id @map("_id")
   name         String
-  castHash     String    
-  nftId        String
-  owner        String?
-  imageUrl     String?
+  description  String 
+  imageUrl     String
+  jsonIpfsUrl  String
+  owner        String
   createdAt    DateTime  @default(now())
-}
-
-model Mention {
-  id        String   @id @map("_id")
-  status    String
-  created   DateTime @default(now())
-  cast      Json
 }

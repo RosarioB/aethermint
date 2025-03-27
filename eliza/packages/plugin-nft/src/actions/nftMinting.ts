@@ -12,6 +12,7 @@ import {
 
 import {
     initWalletProvider,
+    SupportedChain,
     type WalletProvider,
 } from "@elizaos-plugins/plugin-evm";
 import type {
@@ -24,44 +25,76 @@ import { generateAiImage } from "../lib/imageGeneration.js";
 import { validateImageGenConfig } from "@elizaos-plugins/plugin-image-generation";
 import { uploadJsonToPinata } from "../lib/pinata.js";
 import { parseAbi } from "viem";
-import { baseSepolia } from "viem/chains";
-import { privateKeyToAccount } from "viem/accounts";
+import { config } from "../lib/config.js";
+import { createNft } from "../lib/api.js";
+import { getChainKeyById } from "../lib/utils.js";
 
-const ERC721_ADDRESS = process.env.ERC721_ADDRESS as `0x${string}`;
-const OWNER_ERC721 = process.env.OWNER_ERC721 as `0x${string}`;
-const account = privateKeyToAccount(
-    process.env.EVM_PRIVATE_KEY as `0x${string}`
-);
+const ERC721_ADDRESS = config.erc721_address as `0x${string}`;
 
 const erc721Abi = parseAbi([
+    "function totalSupply() public view returns (uint256)",
     "function safeMint(address to, string memory uri) public returns (uint256)",
 ]);
 
 export class NftMintingAction {
-    constructor(private walletProvider: WalletProvider) {}
+    private currentChainKey: SupportedChain;
+
+    constructor(private walletProvider: WalletProvider) {
+        this.currentChainKey = getChainKeyById(
+            walletProvider.getCurrentChain().id
+        );
+    }
 
     async mint(params: NftMintingParams): Promise<NftMintingTransaction> {
         elizaLogger.info(
-            `Minting NFT with TokenURI ${params.tokenUri} to ${params.recipient}`
+            `Minting NFT with TokenURI ${params.jsonHash} to ${params.recipient}`
         );
-
-        const walletClient = this.walletProvider.getWalletClient("baseSepolia");
-
+        const currentChain = this.walletProvider.getCurrentChain();
+        const account = this.walletProvider.account;
+        const walletClient = this.walletProvider.getWalletClient(
+            this.currentChainKey
+        );
         try {
+            const totalSupply = await this.walletProvider
+                .getPublicClient(this.currentChainKey)
+                .readContract({
+                    address: ERC721_ADDRESS,
+                    abi: erc721Abi,
+                    functionName: "totalSupply",
+                    args: [],
+                });
             const txHash = await walletClient.writeContract({
                 address: ERC721_ADDRESS,
                 abi: erc721Abi,
                 functionName: "safeMint",
-                args: [OWNER_ERC721, params.tokenUri],
-                chain: baseSepolia,
+                args: [params.recipient as `0x${string}`, params.jsonHash],
+                chain: currentChain,
                 account: account,
             });
 
+            elizaLogger.info(
+                `Successfully minted NFT n. ${totalSupply} to ${params.recipient} with transaction Hash: ${txHash}`
+            );
+
+            const imageUrl = `https://${config.pinata_gateway_url}/ipfs/${params.imageHash}`;
+            const jsonUrl = `ipfs://${params.jsonHash}`;
+
+            await createNft({
+                id: totalSupply.toString(),
+                name: params.name,
+                description: params.description,
+                imageUrl: imageUrl,
+                jsonIpfsUrl: jsonUrl,
+                owner: params.recipient,
+            });
+
             return {
+                id: totalSupply.toString(),
                 hash: txHash,
                 from: walletClient.account.address,
                 to: params.recipient,
-                tokenUri: params.tokenUri,
+                tokenUri: params.jsonHash,
+                imageUrl,
             };
         } catch (error) {
             throw new Error(
@@ -174,24 +207,30 @@ export const nftMintingAction: Action = {
             imageHash
         );
 
-        const nftMintingParams = {
-            tokenUri: jsonHash,
+        const nftMintingParams: NftMintingParams = {
+            jsonHash: jsonHash,
             recipient: promptData.recipient,
+            name: promptData.name,
+            description: promptData.description,
+            imageHash: imageHash,
         };
 
         try {
             const transferResp = await action.mint(nftMintingParams);
+            const currentChain = walletProvider.getCurrentChain();
+            const txUrl = `${currentChain.blockExplorers.default.url}/tx/${transferResp.hash}`;
+
             if (callback) {
-                elizaLogger.info(
-                    `Successfully minted NFT to ${promptData.recipient} with transaction Hash: ${transferResp.hash}`
-                );
                 callback({
-                    text: `Successfully minted NFT to ${promptData.recipient} with transaction Hash: ${transferResp.hash}`,
+                    text: `Successfully minted the NFT of ${promptData.description} to ${promptData.recipient}. Transaction: ${txUrl}`,
                     content: {
                         success: true,
+                        nftId: transferResp.id,
                         hash: transferResp.hash,
                         recipient: transferResp.to,
                         tokenUri: transferResp.tokenUri,
+                        imageUrl: transferResp.imageUrl,
+                        txUrl: txUrl,
                     },
                 });
             }
@@ -219,7 +258,7 @@ export const nftMintingAction: Action = {
             {
                 user: "{{agentName}}",
                 content: {
-                    text: "NFT successfully minted to 0x742d35Cc6634C0532925a3b844Bc454e4438f44 \nTransaction Hash: 0x1234567890",
+                    text: "Successfully minted NFT of ID 1 to 0x742d35Cc6634C0532925a3b844Bc454e4438f44. Check the transaction at this URL:https://sepolia.basescan.org/tx/0x625f1ccf068bb71c5b0a385297f7a0bfa5a32b23f4d08c3e2c41158ac468e3a2 ---imageUrl:https://apricot-obvious-xerinae-783.mypinata.cloud/ipfs/bafybeidwnwsaadwtoregkjdfvaivmaslxragxzkjwk2zgp7jkw4th2xzm6---",
                     action: "MINT_NFT",
                 },
             },
@@ -233,21 +272,21 @@ export const nftMintingAction: Action = {
             {
                 user: "{{agentName}}",
                 content: {
-                    text: "NFT successfully minted to 0x742d35Cc6634C0532925a3b844Bc454e4438f44 \nTransaction Hash: 0x1234567890",
+                    text: "Successfully minted NFT of ID 2 to 0x742d35Cc6634C0532925a3b844Bc454e4438f44. Check the transaction at this URL:https://sepolia.basescan.org/tx/0x625f1ccf068bb71c5b0a385297f7a0bfa5a32b23f4d08c3e2c41158ac468e3a2 ---imageUrl:https://apricot-obvious-xerinae-783.mypinata.cloud/ipfs/bafybeidwnwsaadwtoregkjdfvaivmaslxragxzkjwk2zgp7jkw4th2xzm6---",
                     action: "MINT_NFT",
                 },
             },
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Send a fabolus car to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
+                    text: "Create a fabolus car and send it to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
                     action: "MINT_NFT",
                 },
             },
             {
                 user: "{{agentName}}",
                 content: {
-                    text: "NFT successfully minted to 0x742d35Cc6634C0532925a3b844Bc454e4438f44 \nTransaction Hash: 0x1234567890",
+                    text: "Successfully minted NFT of ID 3 to 0x742d35Cc6634C0532925a3b844Bc454e4438f44. Check the transaction at this URL:https://sepolia.basescan.org/tx/0x625f1ccf068bb71c5b0a385297f7a0bfa5a32b23f4d08c3e2c41158ac468e3a2 ---imageUrl:https://apricot-obvious-xerinae-783.mypinata.cloud/ipfs/bafybeidwnwsaadwtoregkjdfvaivmaslxragxzkjwk2zgp7jkw4th2xzm6---",
                     action: "MINT_NFT",
                 },
             },
