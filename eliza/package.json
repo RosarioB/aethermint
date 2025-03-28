@@ -42,7 +42,7 @@
     "turbo": "2.4.4",
     "typedoc": "0.26.11",
     "typescript": "5.6.3",
-    "viem": "2.21.58",
+    "viem": "2.24.1",
     "vite": "5.4.12",
     "vitest": "3.0.5"
   },
@@ -52,7 +52,7 @@
       "@solana/web3.js@1.95.5": "npm:@solana/web3.js@1.95.5",
       "@solana/web3.js@1.95.8": "npm:@solana/web3.js@1.95.8",
       "@solana/web3.js@2": "npm:@solana/web3.js@2.0.0",
-      "viem": "2.21.58",
+      "viem": "2.24.1",
       "@polkadot/util": "12.6.2",
       "@polkadot/util-crypto": "12.6.2",
       "@polkadot/types-create": "10.13.1",

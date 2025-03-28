@@ -1,7 +1,7 @@
 import { config } from "../config/config.js";
 import neynarClient from "../lib/neynar.js";
 import agentService from "./agent.service.js";
-import { WebhookEvent } from "../types/webhook.types.js";
+import { WebhookEvent } from "../types/webhookEvent.types.js";
 import { AgentResponse, AgentResponseData } from "../types/agent.types.js";
 import { PostCastResponse } from "@neynar/nodejs-sdk/build/api/index.js";
 import { errorWithTimestamp, logWithTimestamp } from "../utils/logging.js";
@@ -21,20 +21,19 @@ class WebhookService {
         "The text does not start with @aethermint, it's not a mention."
       );
     }
-    const message = text.replace("@aethermint", "").trim();
-    logWithTimestamp(`Received mention: ${message}`);
+    logWithTimestamp(`Received mention: ${text}`);
     //logWithTimestamp(util.inspect(data, { depth: null, colors: true }));
     const agentId = await agentService.fetchAgent();
     const agentResponse = (await agentService.sendMessageToAgent(
       agentId,
-      message
+      text
     )) as AgentResponse;
 
     const responseData = agentResponse.data;
     const mintData = responseData.find((item) =>
       item.text.startsWith("Successfully minted the NFT")
     );
-    this.validateDate(mintData);
+    this.validateData(mintData);
     logWithTimestamp(`Agent response data: ${JSON.stringify(mintData)}`);
 
     const author = webhookData.author.username;
@@ -46,7 +45,7 @@ class WebhookService {
     return castResponse;
   }
 
-  private validateDate(mintData: AgentResponseData) {
+  private validateData(mintData: AgentResponseData) {
     if (!mintData) {
       throw new Error("No successfully minted NFT data found.");
     }

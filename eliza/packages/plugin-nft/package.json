@@ -23,6 +23,7 @@
         "@elizaos-plugins/plugin-evm": "workspace:*",
         "@elizaos-plugins/plugin-image-generation": "workspace:*",
         "pinata-web3": "^0.5.4",
+        "@neynar/nodejs-sdk": "^2.23.0",
         "zod": "3.24.1",
         "axios": "^1.8.4"
     },

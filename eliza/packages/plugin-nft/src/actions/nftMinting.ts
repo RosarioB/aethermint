@@ -27,7 +27,7 @@ import { uploadJsonToPinata } from "../lib/pinata.js";
 import { parseAbi } from "viem";
 import { config } from "../lib/config.js";
 import { createNft } from "../lib/api.js";
-import { getChainKeyById } from "../lib/utils.js";
+import { getChainKeyById, getRecipientAddress } from "../lib/utils.js";
 
 const ERC721_ADDRESS = config.erc721_address as `0x${string}`;
 
@@ -43,6 +43,10 @@ export class NftMintingAction {
         this.currentChainKey = getChainKeyById(
             walletProvider.getCurrentChain().id
         );
+    }
+
+    getCurrentChainKey(): SupportedChain {
+        return this.currentChainKey;
     }
 
     async mint(params: NftMintingParams): Promise<NftMintingTransaction> {
@@ -180,13 +184,13 @@ export const nftMintingAction: Action = {
         const walletProvider = await initWalletProvider(runtime);
         const action = new NftMintingAction(walletProvider);
 
-        const promptData = await buildNftMintingDetails(
+        const extractedData = await buildNftMintingDetails(
             currentState,
             runtime,
             walletProvider
         );
 
-        if (!isNftMintingContent(promptData)) {
+        if (!isNftMintingContent(extractedData)) {
             elizaLogger.error("Invalid content for MINT_NFT action.");
             callback({
                 text: "Invalid NftMinting details. Ensure name, description, and recipient are correctly specified.",
@@ -195,23 +199,29 @@ export const nftMintingAction: Action = {
             return false;
         }
 
-        elizaLogger.info(`Validated JSON: ${JSON.stringify(promptData)}`);
+        elizaLogger.info(`Validated JSON: ${JSON.stringify(extractedData)}`);
+
+        const recipient = extractedData.recipient.trim();
+        const recipientAddress = await getRecipientAddress(
+            recipient,
+            walletProvider
+        );
 
         const imageHash = await generateAiImage(
             runtime,
-            promptData.description
+            extractedData.description
         );
         const jsonHash = await uploadJsonToPinata(
-            promptData.name || "",
-            promptData.description,
+            extractedData.name || "",
+            extractedData.description,
             imageHash
         );
 
         const nftMintingParams: NftMintingParams = {
             jsonHash: jsonHash,
-            recipient: promptData.recipient,
-            name: promptData.name,
-            description: promptData.description,
+            recipient: recipientAddress,
+            name: extractedData.name,
+            description: extractedData.description,
             imageHash: imageHash,
         };
 
@@ -222,12 +232,13 @@ export const nftMintingAction: Action = {
 
             if (callback) {
                 callback({
-                    text: `Successfully minted the NFT of ${promptData.description} to ${promptData.recipient}. Transaction: ${txUrl}`,
+                    text: `Successfully minted the NFT of ${extractedData.description} to ${recipient}. Check out the transaction: ${txUrl}`,
                     content: {
                         success: true,
                         nftId: transferResp.id,
                         hash: transferResp.hash,
-                        recipient: transferResp.to,
+                        recipientAddress,
+                        recipient: recipient,
                         tokenUri: transferResp.tokenUri,
                         imageUrl: transferResp.imageUrl,
                         txUrl: txUrl,
@@ -251,7 +262,7 @@ export const nftMintingAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Send a golden cat to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
+                    text: "@aethermint Send a golden cat to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
                     action: "MINT_NFT",
                 },
             },
@@ -265,28 +276,28 @@ export const nftMintingAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Send a cake to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
+                    text: "@aethermint Send a cake to @someaccount",
                     action: "MINT_NFT",
                 },
             },
             {
                 user: "{{agentName}}",
                 content: {
-                    text: "Successfully minted NFT of ID 2 to 0x742d35Cc6634C0532925a3b844Bc454e4438f44. Check the transaction at this URL:https://sepolia.basescan.org/tx/0x625f1ccf068bb71c5b0a385297f7a0bfa5a32b23f4d08c3e2c41158ac468e3a2 ---imageUrl:https://apricot-obvious-xerinae-783.mypinata.cloud/ipfs/bafybeidwnwsaadwtoregkjdfvaivmaslxragxzkjwk2zgp7jkw4th2xzm6---",
+                    text: "Successfully minted NFT of ID 2 to @someaccount. Check the transaction at this URL:https://sepolia.basescan.org/tx/0x625f1ccf068bb71c5b0a385297f7a0bfa5a32b23f4d08c3e2c41158ac468e3a2 ---imageUrl:https://apricot-obvious-xerinae-783.mypinata.cloud/ipfs/bafybeidwnwsaadwtoregkjdfvaivmaslxragxzkjwk2zgp7jkw4th2xzm6---",
                     action: "MINT_NFT",
                 },
             },
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Create a fabolus car and send it to 0x742d35Cc6634C0532925a3b844Bc454e4438f44",
+                    text: "@aethermint Create a fabolus car and send it to vitalik.eth",
                     action: "MINT_NFT",
                 },
             },
             {
                 user: "{{agentName}}",
                 content: {
-                    text: "Successfully minted NFT of ID 3 to 0x742d35Cc6634C0532925a3b844Bc454e4438f44. Check the transaction at this URL:https://sepolia.basescan.org/tx/0x625f1ccf068bb71c5b0a385297f7a0bfa5a32b23f4d08c3e2c41158ac468e3a2 ---imageUrl:https://apricot-obvious-xerinae-783.mypinata.cloud/ipfs/bafybeidwnwsaadwtoregkjdfvaivmaslxragxzkjwk2zgp7jkw4th2xzm6---",
+                    text: "Successfully minted NFT of ID 3 to vitalik.eth. Check the transaction at this URL:https://sepolia.basescan.org/tx/0x625f1ccf068bb71c5b0a385297f7a0bfa5a32b23f4d08c3e2c41158ac468e3a2 ---imageUrl:https://apricot-obvious-xerinae-783.mypinata.cloud/ipfs/bafybeidwnwsaadwtoregkjdfvaivmaslxragxzkjwk2zgp7jkw4th2xzm6---",
                     action: "MINT_NFT",
                 },
             },

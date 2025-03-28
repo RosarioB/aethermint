@@ -1,3 +1,4 @@
+import { elizaLogger } from "@elizaos/core";
 import * as viemChains from "viem/chains";
 import { z } from "zod";
 
@@ -15,16 +16,22 @@ export interface NftMintingContent {
 export const NFTSchema = z.object({
     name: z.string(),
     description: z.string(),
-    recipient: z
-        .string()
-        .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address"),
+    recipient: z.string().refine(
+        (value) =>
+            /^0x[a-fA-F0-9]{40}$/.test(value) || // Ethereum address
+            value.startsWith("@") || // Farcaster handle
+            value.endsWith(".eth"), // ENS domain
+        {
+            message: "Recipient must be a valid Ethereum address, Farcaster handle, or ENS domain",
+        }
+    ),
 });
 
 export const isNftMintingContent = (object: any): object is NftMintingContent => {
     if (NFTSchema.safeParse(object).success) {
         return true;
     }
-    console.error("Invalid content: ", object);
+    elizaLogger.error("Invalid content: ", object);
     return false;
 };
 

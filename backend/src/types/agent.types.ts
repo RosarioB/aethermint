@@ -16,6 +16,7 @@ export interface AgentResponseContent {
   nftId: string;
   hash: string;
   recipient: string;
+  recipientAddress: string;
   tokenUri: string;
   imageUrl: string;
   txUrl: string;

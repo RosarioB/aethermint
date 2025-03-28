@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import WebhookService from "../services/webhook.service.js";
-import { WebhookEvent } from "../types/webhook.types.js";
+import { WebhookEvent } from "../types/webhookEvent.types.js";
+import { errorWithTimestamp } from "../utils/logging.js";
 
 export async function handleMention(
   req: Request,
@@ -8,10 +9,16 @@ export async function handleMention(
 ): Promise<void> {
   try {
     const event = req.body as WebhookEvent;
-    const result = await WebhookService.handleMention(event);
-    res.status(200).send(result);
+    const castHash = event.data.hash;
+    setImmediate(() => {
+      WebhookService.handleMention(event).catch((e) => {
+        errorWithTimestamp(`Error in handleMention on cast ${castHash}:`, e);
+      });
+    });
+    const result = { message: "Operation accepted" };
+    res.status(202).send(result);
   } catch (e: any) {
-    console.error(`[${new Date().toISOString()}] Error handling mention:`, e);
+    errorWithTimestamp(`Error handling mention:`, e);
     res.status(500).send(e.message);
   }
 }
