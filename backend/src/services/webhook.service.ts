@@ -37,10 +37,13 @@ class WebhookService {
     logWithTimestamp(`Agent response data: ${JSON.stringify(mintData)}`);
 
     const author = webhookData.author.username;
+    const parentCastHash = webhookData.hash;
     const textToPublish = `@${author} ${mintData.text}`;
-    const castResponse = await this.publishCast(
-      textToPublish,
-      mintData.content.imageUrl
+    const castResponse = await this.publishCast({
+      text: textToPublish,
+      imageUrl: mintData.content.imageUrl,
+      parentCastHash
+    }
     );
     return castResponse;
   }
@@ -54,19 +57,22 @@ class WebhookService {
     }
   }
 
-  async publishCast(text: string, imageUrl: string): Promise<PostCastResponse> {
+  async publishCast(
+    castData: { text: string; imageUrl: string; parentCastHash: string }
+  ): Promise<PostCastResponse> {
     try {
       const neynarResponse = await neynarClient.publishCast({
         signerUuid: config.signer_uuid,
-        text: text,
+        text: castData.text,
+        parent: castData.parentCastHash,
         embeds: [
           {
-            url: imageUrl,
+            url: castData.imageUrl,
           },
         ],
       });
       logWithTimestamp(
-        `Published cast: ${text} \nEmbedded image URL ${imageUrl}`
+        `Published cast: ${castData.text} \nEmbedded image URL ${castData.imageUrl}`
       );
       return neynarResponse;
     } catch (error) {
