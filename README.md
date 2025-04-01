@@ -11,6 +11,18 @@ You can invoke Aethermint on Farcaster by casting:
 @aethermint Send a golden sports car with red stripes to vitalik.eth
 ```
 
+## Docker
+Start the MongoDB container:
+```
+cd /aethermint/docker/test
+docker-compose up -d
+```
+
+To stop the container:
+```
+docker-compose down
+```
+
 ## Backend
 - **Project Setup**: `pnpm i`
 
@@ -19,7 +31,7 @@ You can invoke Aethermint on Farcaster by casting:
 - **Environment Variables**: Create a `.env` file with the following:
 
     ```
-    DATABASE_URL=<your-database-url>
+    MONGO_URL=<your-mongo-db-url> (i.e: mongodb://root:root@localhost:27017)
     PRIVATE_KEY=<your-private-key>
     NEYNAR_API_KEY=<your-neynar-api-key>
     SIGNER_UUID=<your-signer-uuid>

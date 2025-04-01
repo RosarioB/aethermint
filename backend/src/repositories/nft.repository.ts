@@ -1,25 +1,25 @@
-import { Nft } from "@prisma/client";
-import prisma from "./client.js";
+import { Nft, NftModel } from "../models/nft.model.js";
 
 class NftRepository {
   async createNft(data: Nft) {
-    return prisma.nft.create({ data });
+    const nft = new NftModel(data);
+    return nft.save();
   }
 
   async getNfts() {
-    return prisma.nft.findMany();
+    return NftModel.find();
   }
 
   async getNftById(nftId: string) {
-    return prisma.nft.findFirst({ where: { id: nftId } });
+    return NftModel.findOne({ id: nftId });
   }
 
   async deleteNft(nftId: string) {
-    return prisma.nft.delete({ where: { id: nftId } });
+    return NftModel.findOneAndDelete({ id: nftId });
   }
 
-  async updateNft(nftId: string, data: any) {
-    return prisma.nft.update({ where: { id: nftId }, data });
+  async updateNft(nftId: string, data: Partial<Nft>) {
+    return NftModel.findOneAndUpdate({ id: nftId }, data, { new: true });
   }
 }
 

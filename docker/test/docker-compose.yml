@@ -2,10 +2,11 @@ name: 'mongo-db'
 services:
   mongo:
     # This image automatically creates a replica set required for transactions
-    image: prismagraphql/mongo-single-replica:4.4.3-bionic
+    image: mongodb/mongodb-community-server:latest
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: prisma
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: aethermint
       INIT_WAIT_SEC: 3
     ports:
       - 27017:27017
