@@ -20,9 +20,12 @@ async function main() {
   const balance = await aethermintContract.balanceOf("0x2221b0b0bcf6146646016a323e60997a11c709a3");
   console.log(`The token balance of the account ${"0x2221b0b0bcf6146646016a323e60997a11c709a3"} is: ${balance}`);
 
-  const tokenId = 6;
+  const tokenId = 19;
   const tokenURI = await aethermintContract.tokenURI(tokenId);
   console.log(`The token URI of the tokenId ${tokenId} is: ${tokenURI}`);
+
+  const ownerOfToken = await aethermintContract.ownerOf(tokenId);
+  console.log(`The owner of the tokenId ${tokenId} is: ${ownerOfToken}`);
 
   /* // Run contract write function
   const transaction = await aethermintContract.setGreeting('Hello people!');

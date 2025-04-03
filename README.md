@@ -10,6 +10,9 @@ You can invoke Aethermint on Farcaster by casting:
 
 @aethermint Send a golden sports car with red stripes to vitalik.eth
 ```
+## Demo
+
+You can find the demo of this project on [Youtube](https://www.youtube.com/watch?v=iSiw6tYA9B0)
 
 ## Docker
 Start the MongoDB container:
